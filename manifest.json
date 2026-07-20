@@ -1,0 +1,16 @@
+{
+  "name": "サビアンの鏡",
+  "short_name": "サビアンの鏡",
+  "description": "出生図の統合リーディング（サビアンシンボル対応・端末内計算）",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#f7f5f0",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

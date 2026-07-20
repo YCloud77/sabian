@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5f0">
+  <title>サビアンの鏡</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>サビアンの鏡</h1>
+    <p class="subtitle">出生図の統合リーディング</p>
+  </header>
+
+  <main>
+    <form id="birth-form" autocomplete="off">
+      <label>
+        <span>名前</span>
+        <input type="text" id="in-name" placeholder="例：森川さん" maxlength="40">
+      </label>
+      <label>
+        <span>生年月日</span>
+        <div class="date-selects">
+          <select id="in-year" required aria-label="年"><option value="">年</option></select>
+          <select id="in-month" required aria-label="月"><option value="">月</option></select>
+          <select id="in-day" required aria-label="日"><option value="">日</option></select>
+        </div>
+      </label>
+      <label>
+        <span>出生時刻</span>
+        <input type="time" id="in-time" required value="12:00">
+      </label>
+      <label>
+        <span>出生地</span>
+        <input type="text" id="in-place" list="place-list" placeholder="例：神戸市" required>
+        <datalist id="place-list"></datalist>
+        <small id="place-status" class="place-status"></small>
+      </label>
+      <label>
+        <span>鑑定士</span>
+        <select id="in-persona">
+          <option value="fukurou" selected>🦉 フクロウ（静かに深く）</option>
+          <option value="anesan">🍵 姉さん（あたたかく率直に）</option>
+          <option value="master">🥃 マスター（大人の距離感で）</option>
+        </select>
+        <small class="persona-note">※ Claude深読みの語り口が変わります</small>
+      </label>
+
+      <details class="advanced">
+        <summary>詳細設定（海外出生・座標の直接入力）</summary>
+        <label>
+          <span>タイムゾーン</span>
+          <select id="in-tz">
+            <option value="9" selected>日本時間（UTC+9）</option>
+            <option value="8">UTC+8（中国・台湾・香港など）</option>
+            <option value="7">UTC+7</option>
+            <option value="10">UTC+10</option>
+            <option value="11">UTC+11</option>
+            <option value="12">UTC+12</option>
+            <option value="0">UTC+0（イギリスの冬時間など）</option>
+            <option value="1">UTC+1</option>
+            <option value="2">UTC+2</option>
+            <option value="3">UTC+3</option>
+            <option value="5.5">UTC+5.5（インド）</option>
+            <option value="-5">UTC-5（アメリカ東部の冬時間など）</option>
+            <option value="-6">UTC-6</option>
+            <option value="-7">UTC-7</option>
+            <option value="-8">UTC-8（アメリカ西部の冬時間など）</option>
+            <option value="-10">UTC-10（ハワイ）</option>
+            <option value="custom">その他（下で入力）</option>
+          </select>
+        </label>
+        <label id="tz-custom-row" hidden>
+          <span>UTCオフセット（時間）</span>
+          <input type="number" id="in-tz-custom" step="0.25" min="-12" max="14" value="9">
+        </label>
+        <p class="tz-note">※ 夏時間（サマータイム）のある国・時期は、その時点のオフセットを選んでください。</p>
+        <div class="latlon-row">
+          <label>
+            <span>緯度</span>
+            <input type="number" id="in-lat" step="0.01" min="-90" max="90" placeholder="34.69">
+          </label>
+          <label>
+            <span>経度</span>
+            <input type="number" id="in-lon" step="0.01" min="-180" max="180" placeholder="135.20">
+          </label>
+        </div>
+      </details>
+
+      <button type="submit" id="btn-read" class="primary">読み解く</button>
+    </form>
+
+    <section id="history-section" hidden>
+      <h2>履歴</h2>
+      <ul id="history-list"></ul>
+    </section>
+
+    <section id="result" hidden>
+      <div class="result-head">
+        <h2 id="result-title"></h2>
+        <p id="result-meta" class="result-meta"></p>
+        <p id="result-note" class="result-note" hidden></p>
+      </div>
+      <div id="report"></div>
+      <div class="actions">
+        <a id="btn-claude" class="secondary" role="button" target="_blank" rel="noopener" href="https://claude.ai/new">Claudeで深読みを開く（コピー＆貼り付け）</a>
+        <button type="button" id="btn-md" class="secondary">Markdownコピー</button>
+      </div>
+      <p class="claude-hint">押すとClaudeが新しいタブで開き、鑑定プロンプトがコピーされます。開いたClaudeで <b>Cmd+V</b>（貼り付け）→ 送信してください。</p>
+      <div id="copy-fallback" hidden>
+        <p>自動コピーが効かない場合は、下の枠をクリック→全選択（Cmd+A）→コピー（Cmd+C）して、Claudeに貼り付けてください。</p>
+        <textarea id="copy-fallback-text" rows="8" readonly></textarea>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>すべての計算は端末内で完結します。入力した情報が外部に送信されることはありません。</p>
+    <p class="engine-note">計算エンジン: astronomy-engine v2.1.19（MIT License）</p>
+  </footer>
+
+  <script src="astronomy.browser.js"></script>
+  <script src="sabian.js"></script>
+  <script src="chart.js"></script>
+  <script src="interpret.js"></script>
+  <script src="places.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
